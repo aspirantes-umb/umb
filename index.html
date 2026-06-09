@@ -2,54 +2,44 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redireccionando... | UMB</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; color: #333; background-color: #f4f6f8; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #8A1538; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-
-    <h2>Conectando con el portal de la UMB...</h2>
-    <div class="loader"></div>
-    <p>Por favor, espera un momento.</p>
+    <title>Redireccionando...</title>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
 
     <script>
-        // 1. Extraer los parámetros de la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const fila = urlParams.get('fila');
-        const destinoReal = urlParams.get('destino');
+        window.onload = function() {
+            // 2. Extraer los parámetros de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const destino = urlParams.get('destino');
+            const usuario = urlParams.get('usuario') || 'anonimo';
 
-        // ⚠️ REEMPLAZA ESTO: Pon tu URL real de la Web App (/exec) que obtuviste de Google Apps Script
-        const GOOGLE_SCRIPT_URL = "SUSTITUYE_CON_TU_URL_DE_APPS_SCRIPT_TERMINADA_EN_EXEC";
+            if (destino) {
+                // 3. Registrar el evento personalizado en Analytics
+                gtag('event', 'clic_registro_umb', {
+                    'usuario_correo': usuario,
+                    'url_destino': destino
+                });
 
-        function procesarRedireccion() {
-            if (destinoReal) {
-                const urlDestino = decodeURIComponent(destinoReal);
-
-                // Si viene el parámetro de la fila, disparamos el registro en segundo plano
-                if (fila && GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("SUSTITUYE_CON_TU_URL")) {
-                    // El truco definitivo: Enviamos la petición sin el 'await' para que no frene la navegación
-                    fetch(`${GOOGLE_SCRIPT_URL}?fila=${fila}&destino=${encodeURIComponent(urlDestino)}`, {
-                        method: 'GET',
-                        mode: 'no-cors' // Evita que el navegador bloquee la petición por temas de seguridad corporativa
-                    }).catch(err => console.log("Registro enviado de fondo"));
-                }
-                
-                // Redirección inmediata sin esperar la respuesta de Google
-                setTimeout(() => {
-                    window.location.href = urlDestino;
-                }, 300); // 300 milisegundos de cortesía visual para el alumno
-
+                // 4. Redireccionar tras un leve retraso (150ms) para asegurar el envío a Analytics
+                setTimeout(function() {
+                    window.location.href = decodeURIComponent(destino);
+                }, 150);
             } else {
-                document.body.innerHTML = "<h2>Error: Enlace de registro no válido o incompleto.</h2>";
+                // Si algo falla, enviarlo a la página principal de la UMB
+                window.location.href = "https://umb.edomex.gob.mx/"; 
             }
-        }
-
-        // Ejecutar al cargar la página
-        procesarRedireccion();
+        };
     </script>
+</head>
+<body>
+    <p style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
+        Cargando portal de registro... por favor espere.
+    </p>
 </body>
 </html>

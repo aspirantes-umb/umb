@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Redireccionando...</title>
-    
+</head>
+<body>
+    <p style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
+        Cargando portal de registro... por favor espere.
+    </p>
+
     <script>
         window.onload = function() {
             // 1. Extraer los parámetros de la URL enviados desde el correo
@@ -11,44 +16,44 @@
             const destino = urlParams.get('destino');
             const usuario = urlParams.get('usuario') || 'anonimo@umb.edu';
 
-            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE (CORREGIDO)
-            // Se cambió '/viewform' por '/formResponse' para que acepte el envío silencioso
-            const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse"; 
-            
-            // Se agregó el prefijo 'entry.' indispensable para Google Forms
+            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE
+            const formActionUrl = "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse"; 
             const formEntryId = "entry.1144117004"; 
 
             if (destino) {
-                // 3. Crear una petición en segundo plano (Fetch) para registrar el clic en el Google Sheet
-                const formData = new URLSearchParams();
-                formData.append(formEntryId, decodeURIComponent(usuario));
+                // 3. Crear un iframe invisible para que la respuesta de Google no rompa la pantalla del usuario
+                const iframeOculto = document.createElement("iframe");
+                iframeOculto.name = "receptor_invisible";
+                iframeOculto.style.display = "none";
+                document.body.appendChild(iframeOculto);
 
-                // Enviamos los datos al formulario en modo 'no-cors' para evitar bloqueos de seguridad externos
-                fetch(formBaseUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: formData.toString()
-                })
-                .then(() => {
-                    // Una vez enviado el registro (o procesado), redirecciona al alumno a la UMB
+                // 4. Crear el Formulario HTML clásico de manera invisible
+                const formulario = document.createElement("form");
+                formulario.action = formActionUrl;
+                formulario.method = "POST";
+                formulario.target = "receptor_invisible"; // Fuerza a que se envíe dentro del iframe oculto
+
+                // 5. Crear el campo de texto con el correo del usuario
+                const inputUsuario = document.createElement("input");
+                inputUsuario.type = "hidden";
+                inputUsuario.name = formEntryId;
+                inputUsuario.value = decodeURIComponent(usuario);
+                formulario.appendChild(inputUsuario);
+
+                // 6. Adjuntar el formulario temporal al cuerpo de la página y ejecutarlo
+                document.body.appendChild(formulario);
+                formulario.submit();
+
+                // 7. Redireccionar al alumno de inmediato a la UMB (damos 200 milisegundos para asegurar el disparo del submit)
+                setTimeout(function() {
                     window.location.href = decodeURIComponent(destino);
-                })
-                .catch(() => {
-                    // Si falla el internet o el envío, redirecciona de todos modos para no afectar al alumno
-                    window.location.href = decodeURIComponent(destino);
-                });
+                }, 200);
 
             } else {
-                // Si la URL viene mal estructurada, enviarlo directo a la página principal de la UMB
+                // Si la URL viene vacía o mal estructurada, enviarlo directo a la página principal de la UMB
                 window.location.href = "https://umb.edomex.gob.mx/"; 
             }
         };
     </script>
-</head>
-<body>
-    <p style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
-        Cargando portal de registro... por favor espere.
-    </p>
 </body>
 </html>

@@ -11,11 +11,12 @@
             const destino = urlParams.get('destino');
             const usuario = urlParams.get('usuario') || 'anonimo@umb.edu';
 
-            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE
-            // Reemplaza el ID "1FAIpQLScXXXXXX" por el tuyo de la URL del paso anterior
-            const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/viewform?usp=pp_url&entry.1144117004=ismael.barron@umb.mx"; 
-            // Reemplaza "entry.123456789" por el número real de tu pregunta
-            const formEntryId = "1144117004"; 
+            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE (CORREGIDO)
+            // Se cambió '/viewform' por '/formResponse' para que acepte el envío silencioso
+            const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse"; 
+            
+            // Se agregó el prefijo 'entry.' indispensable para Google Forms
+            const formEntryId = "entry.1144117004"; 
 
             if (destino) {
                 // 3. Crear una petición en segundo plano (Fetch) para registrar el clic en el Google Sheet

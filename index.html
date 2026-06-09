@@ -1,85 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-
 <title>Redireccionando...</title>
-
 </head>
 
 <body>
 
-<div style="
-font-family:Arial;
-text-align:center;
-margin-top:100px;
-">
-
-<h2>Conectando con el portal UMB...</h2>
-
-<p>Espere un momento.</p>
-
-</div>
+<h3 style="text-align:center">
+Conectando con el portal UMB...
+</h3>
 
 <script>
 
-window.addEventListener("load", async () => {
+window.onload = function() {
 
     const params = new URLSearchParams(window.location.search);
 
-    const destino = params.get("destino");
+    const destino = params.get('destino');
+    const usuario = params.get('usuario');
 
-    const usuario = params.get("usuario");
+    const fechaHora = new Date().toLocaleString('es-MX');
 
-    const uid = params.get("uid");
+    const urlTracking =
+        "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse?" +
+        "entry.1144117004=" + encodeURIComponent(usuario);
 
-    const FORM_URL =
-        "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse";
+    const img = new Image();
 
-    const ENTRY_CORREO = "entry.1144117004";
+    img.src = urlTracking;
 
-    /*
-      CREA UN SEGUNDO CAMPO EN EL FORM
-      para guardar UID
-    */
+    document.body.appendChild(img);
 
-    const ENTRY_UID = "entry.123456789";
-
-    try {
-
-        const formData = new FormData();
-
-        formData.append(
-            ENTRY_CORREO,
-            usuario || "anonimo@umb.edu"
-        );
-
-        formData.append(
-            ENTRY_UID,
-            uid || ""
-        );
-
-        await fetch(
-            FORM_URL,
-            {
-                method: "POST",
-                mode: "no-cors",
-                body: formData
-            }
-        );
-
-        console.log("Tracking registrado");
-
-    }
-    catch(error){
-
-        console.error(error);
-
-    }
-
-    setTimeout(() => {
+    setTimeout(function(){
 
         if(destino){
 
@@ -95,9 +48,9 @@ window.addEventListener("load", async () => {
 
         }
 
-    },1500);
+    },2000);
 
-});
+};
 
 </script>
 

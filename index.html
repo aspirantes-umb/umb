@@ -1,59 +1,105 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Redireccionando...</title>
+
+<meta charset="UTF-8">
+
+<title>Redireccionando...</title>
+
 </head>
+
 <body>
-    <p style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
-        Cargando portal de registro... por favor espere.
-    </p>
 
-    <script>
-        window.onload = function() {
-            // 1. Extraer los parámetros de la URL enviados desde el correo
-            const urlParams = new URLSearchParams(window.location.search);
-            const destino = urlParams.get('destino');
-            const usuario = urlParams.get('usuario') || 'anonimo@umb.edu';
+<div style="
+font-family:Arial;
+text-align:center;
+margin-top:100px;
+">
 
-            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE
-            const formActionUrl = "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse"; 
-            const formEntryId = "entry.1144117004"; 
+<h2>Conectando con el portal UMB...</h2>
 
-            if (destino) {
-                // 3. Crear un iframe invisible para que la respuesta de Google no rompa la pantalla del usuario
-                const iframeOculto = document.createElement("iframe");
-                iframeOculto.name = "receptor_invisible";
-                iframeOculto.style.display = "none";
-                document.body.appendChild(iframeOculto);
+<p>Espere un momento.</p>
 
-                // 4. Crear el Formulario HTML clásico de manera invisible
-                const formulario = document.createElement("form");
-                formulario.action = formActionUrl;
-                formulario.method = "POST";
-                formulario.target = "receptor_invisible"; // Fuerza a que se envíe dentro del iframe oculto
+</div>
 
-                // 5. Crear el campo de texto con el correo del usuario
-                const inputUsuario = document.createElement("input");
-                inputUsuario.type = "hidden";
-                inputUsuario.name = formEntryId;
-                inputUsuario.value = decodeURIComponent(usuario);
-                formulario.appendChild(inputUsuario);
+<script>
 
-                // 6. Adjuntar el formulario temporal al cuerpo de la página y ejecutarlo
-                document.body.appendChild(formulario);
-                formulario.submit();
+window.addEventListener("load", async () => {
 
-                // 7. Redireccionar al alumno de inmediato a la UMB (damos 200 milisegundos para asegurar el disparo del submit)
-                setTimeout(function() {
-                    window.location.href = decodeURIComponent(destino);
-                }, 200);
+    const params = new URLSearchParams(window.location.search);
 
-            } else {
-                // Si la URL viene vacía o mal estructurada, enviarlo directo a la página principal de la UMB
-                window.location.href = "https://umb.edomex.gob.mx/"; 
+    const destino = params.get("destino");
+
+    const usuario = params.get("usuario");
+
+    const uid = params.get("uid");
+
+    const FORM_URL =
+        "https://docs.google.com/forms/d/e/1FAIpQLSePBeqotp1CuRrmcwjOD5WDpGHzauohLSVEeY62qU6GC5w6yw/formResponse";
+
+    const ENTRY_CORREO = "entry.1144117004";
+
+    /*
+      CREA UN SEGUNDO CAMPO EN EL FORM
+      para guardar UID
+    */
+
+    const ENTRY_UID = "entry.123456789";
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append(
+            ENTRY_CORREO,
+            usuario || "anonimo@umb.edu"
+        );
+
+        formData.append(
+            ENTRY_UID,
+            uid || ""
+        );
+
+        await fetch(
+            FORM_URL,
+            {
+                method: "POST",
+                mode: "no-cors",
+                body: formData
             }
-        };
-    </script>
+        );
+
+        console.log("Tracking registrado");
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+
+    setTimeout(() => {
+
+        if(destino){
+
+            window.location.replace(
+                decodeURIComponent(destino)
+            );
+
+        }else{
+
+            window.location.replace(
+                "https://umb.edomex.gob.mx/"
+            );
+
+        }
+
+    },1500);
+
+});
+
+</script>
+
 </body>
 </html>

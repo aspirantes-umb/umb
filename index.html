@@ -17,33 +17,34 @@
     <p>Por favor, espera un momento.</p>
 
     <script>
-        // 1. Obtener los parámetros 'fila' y 'destino' de la URL
+        // 1. Extraer los parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const fila = urlParams.get('fila');
         const destinoReal = urlParams.get('destino');
 
-        // ⚠️ REEMPLAZA ESTO: Pon el ID de tu script de Google aquí para enlazar el registro (O usa una API de Webhook)
-        const GOOGLE_SCRIPT_URL = "TU_NUEVA_URL_DE_APPLICATIONS_SCRIPT_SI_Decides_Dejar_doPost";
+        // ⚠️ REEMPLAZA ESTO: Pon tu URL real de la Web App (/exec) que obtuviste de Google Apps Script
+        const GOOGLE_SCRIPT_URL = "SUSTITUYE_CON_TU_URL_DE_APPS_SCRIPT_TERMINADA_EN_EXEC";
 
-        // Función para registrar y redirigir
-        async function procesarRedireccion() {
-            if (fila && destinoReal) {
-                try {
-                    // Enviar de fondo el registro a Google Sheets sin bloquear la pantalla
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', // Evita bloqueos de seguridad de navegadores (CORS)
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ fila: fila })
-                    });
-                } catch (error) {
-                    console.log("Error registrando clic:", error);
+        function procesarRedireccion() {
+            if (destinoReal) {
+                const urlDestino = decodeURIComponent(destinoReal);
+
+                // Si viene el parámetro de la fila, disparamos el registro en segundo plano
+                if (fila && GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("SUSTITUYE_CON_TU_URL")) {
+                    // El truco definitivo: Enviamos la petición sin el 'await' para que no frene la navegación
+                    fetch(`${GOOGLE_SCRIPT_URL}?fila=${fila}&destino=${encodeURIComponent(urlDestino)}`, {
+                        method: 'GET',
+                        mode: 'no-cors' // Evita que el navegador bloquee la petición por temas de seguridad corporativa
+                    }).catch(err => console.log("Registro enviado de fondo"));
                 }
                 
-                // Redirección inmediata a la liga original del alumno
-                window.location.href = decodeURIComponent(destinoReal);
+                // Redirección inmediata sin esperar la respuesta de Google
+                setTimeout(() => {
+                    window.location.href = urlDestino;
+                }, 300); // 300 milisegundos de cortesía visual para el alumno
+
             } else {
-                document.body.innerHTML = "<h2>Error: Enlace de registro no válido.</h2>";
+                document.body.innerHTML = "<h2>Error: Enlace de registro no válido o incompleto.</h2>";
             }
         }
 

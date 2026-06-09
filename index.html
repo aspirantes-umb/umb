@@ -4,34 +4,42 @@
     <meta charset="UTF-8">
     <title>Redireccionando...</title>
     
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXXXXX');
-    </script>
-
     <script>
         window.onload = function() {
-            // 2. Extraer los parámetros de la URL
+            // 1. Extraer los parámetros de la URL enviados desde el correo
             const urlParams = new URLSearchParams(window.location.search);
             const destino = urlParams.get('destino');
-            const usuario = urlParams.get('usuario') || 'anonimo';
+            const usuario = urlParams.get('usuario') || 'anonimo@umb.edu';
+
+            // 2. CONFIGURACIÓN DEL FORMULARIO DE GOOGLE
+            // Reemplaza el ID "1FAIpQLScXXXXXX" por el tuyo de la URL del paso anterior
+            const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScXXXXXX/formResponse"; 
+            // Reemplaza "entry.123456789" por el número real de tu pregunta
+            const formEntryId = "entry.123456789"; 
 
             if (destino) {
-                // 3. Registrar el evento personalizado en Analytics
-                gtag('event', 'clic_registro_umb', {
-                    'usuario_correo': usuario,
-                    'url_destino': destino
+                // 3. Crear una petición en segundo plano (Fetch) para registrar el clic en el Google Sheet
+                const formData = new URLSearchParams();
+                formData.append(formEntryId, decodeURIComponent(usuario));
+
+                // Enviamos los datos al formulario en modo 'no-cors' para evitar bloqueos de seguridad externos
+                fetch(formBaseUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                .then(() => {
+                    // Una vez enviado el registro (o procesado), redirecciona al alumno a la UMB
+                    window.location.href = decodeURIComponent(destino);
+                })
+                .catch(() => {
+                    // Si falla el internet o el envío, redirecciona de todos modos para no afectar al alumno
+                    window.location.href = decodeURIComponent(destino);
                 });
 
-                // 4. Redireccionar tras un leve retraso (150ms) para asegurar el envío a Analytics
-                setTimeout(function() {
-                    window.location.href = decodeURIComponent(destino);
-                }, 150);
             } else {
-                // Si algo falla, enviarlo a la página principal de la UMB
+                // Si la URL viene mal estructurada, enviarlo directo a la página principal de la UMB
                 window.location.href = "https://umb.edomex.gob.mx/"; 
             }
         };
